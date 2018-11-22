@@ -1,57 +1,58 @@
 # SPDX-License-Identifier: GPL-2.0
-TARGETS = android
-TARGETS += bpf
-TARGETS += breakpoints
-TARGETS += capabilities
-TARGETS += cgroup
-TARGETS += cpufreq
-TARGETS += cpu-hotplug
-TARGETS += efivarfs
-TARGETS += exec
-TARGETS += filesystems
-TARGETS += firmware
-TARGETS += ftrace
-TARGETS += futex
-TARGETS += gpio
-TARGETS += intel_pstate
-TARGETS += ipc
-TARGETS += kcmp
-TARGETS += kvm
-TARGETS += lib
+#TARGETS = android
+#TARGETS += bpf
+#TARGETS += breakpoints
+#TARGETS += capabilities
+#TARGETS += cgroup
+#TARGETS += cpufreq
+#TARGETS += cpu-hotplug
+#TARGETS += efivarfs
+#TARGETS += exec
+#TARGETS += filesystems
+#TARGETS += firmware
+#TARGETS += ftrace
+#TARGETS += futex
+#TARGETS += gpio
+#TARGETS += intel_pstate
+#TARGETS += ipc
+#TARGETS += kcmp
+#TARGETS += kvm
+#TARGETS += lib
+TARGETS += livepatch
 TARGETS += membarrier
-TARGETS += memfd
-TARGETS += memory-hotplug
-TARGETS += mount
-TARGETS += mqueue
-TARGETS += net
-TARGETS += nsfs
-TARGETS += powerpc
-TARGETS += proc
-TARGETS += pstore
-TARGETS += ptrace
-TARGETS += rseq
-TARGETS += rtc
-TARGETS += seccomp
-TARGETS += sigaltstack
-TARGETS += size
-TARGETS += sparc64
-TARGETS += splice
-TARGETS += static_keys
-TARGETS += sync
-TARGETS += sysctl
-ifneq (1, $(quicktest))
-TARGETS += timers
-endif
-TARGETS += user
-TARGETS += vm
-TARGETS += x86
-TARGETS += zram
+#TARGETS += memfd
+#TARGETS += memory-hotplug
+#TARGETS += mount
+#TARGETS += mqueue
+#TARGETS += net
+#TARGETS += nsfs
+#TARGETS += powerpc
+#TARGETS += proc
+#TARGETS += pstore
+#TARGETS += ptrace
+#TARGETS += rseq
+#TARGETS += rtc
+#TARGETS += seccomp
+#TARGETS += sigaltstack
+#TARGETS += size
+#TARGETS += sparc64
+#TARGETS += splice
+#TARGETS += static_keys
+#TARGETS += sync
+#TARGETS += sysctl
+#ifneq (1, $(quicktest))
+#TARGETS += timers
+#endif
+#TARGETS += user
+#TARGETS += vm
+#TARGETS += x86
+#TARGETS += zram
 #Please keep the TARGETS list alphabetically sorted
 # Run "make quicktest=1 run_tests" or
 # "make quicktest=1 kselftest" from top level Makefile
 
-TARGETS_HOTPLUG = cpu-hotplug
-TARGETS_HOTPLUG += memory-hotplug
+#TARGETS_HOTPLUG = cpu-hotplug
+#TARGETS_HOTPLUG += memory-hotplug
 
 # Clear LDFLAGS and MAKEFLAGS if called from main
 # Makefile to avoid test build failures when test

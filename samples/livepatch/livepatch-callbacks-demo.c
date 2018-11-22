@@ -147,45 +147,34 @@ static void patched_work_func(struct work_struct *work)
 }
 
 static struct klp_func no_funcs[] = {
-	{ }
+	KLP_FUNC_END
 };
 
 static struct klp_func busymod_funcs[] = {
-	{
-		.old_name = "busymod_work_func",
-		.new_func = patched_work_func,
-	}, { }
+	KLP_FUNC(busymod_work_func,
+		 patched_work_func),
+	KLP_FUNC_END
 };
 
 static struct klp_object objs[] = {
-	{
-		.name = NULL,	/* vmlinux */
-		.funcs = no_funcs,
-		.callbacks = {
-			.pre_patch = pre_patch_callback,
-			.post_patch = post_patch_callback,
-			.pre_unpatch = pre_unpatch_callback,
-			.post_unpatch = post_unpatch_callback,
-		},
-	},	{
-		.name = "livepatch_callbacks_mod",
-		.funcs = no_funcs,
-		.callbacks = {
-			.pre_patch = pre_patch_callback,
-			.post_patch = post_patch_callback,
-			.pre_unpatch = pre_unpatch_callback,
-			.post_unpatch = post_unpatch_callback,
-		},
-	},	{
-		.name = "livepatch_callbacks_busymod",
-		.funcs = busymod_funcs,
-		.callbacks = {
-			.pre_patch = pre_patch_callback,
-			.post_patch = post_patch_callback,
-			.pre_unpatch = pre_unpatch_callback,
-			.post_unpatch = post_unpatch_callback,
-		},
-	}, { }
+	KLP_VMLINUX_CALLBACKS(no_funcs,
+			      pre_patch_callback,
+			      post_patch_callback,
+			      pre_unpatch_callback,
+			      post_unpatch_callback),
+	KLP_OBJECT_CALLBACKS(livepatch_callbacks_mod,
+			     no_funcs,
+			     pre_patch_callback,
+			     post_patch_callback,
+			     pre_unpatch_callback,
+			     post_unpatch_callback),
+	KLP_OBJECT_CALLBACKS(livepatch_callbacks_busymod,
+			     busymod_funcs,
+			     pre_patch_callback,
+			     post_patch_callback,
+			     pre_unpatch_callback,
+			     post_unpatch_callback),
+	KLP_OBJECT_END
 };
 
 static struct klp_patch patch = {
@@ -195,22 +184,11 @@ static struct klp_patch patch = {
 
 static int livepatch_callbacks_demo_init(void)
 {
-	int ret;
-
-	ret = klp_register_patch(&patch);
-	if (ret)
-		return ret;
-	ret = klp_enable_patch(&patch);
-	if (ret) {
-		WARN_ON(klp_unregister_patch(&patch));
-		return ret;
-	}
-	return 0;
+	return klp_enable_patch(&patch);
 }
 
 static void livepatch_callbacks_demo_exit(void)
 {
-	WARN_ON(klp_unregister_patch(&patch));
 }
 
 module_init(livepatch_callbacks_demo_init);

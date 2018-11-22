@@ -105,21 +105,17 @@ void livepatch_fix2_dummy_free(struct dummy *d)
 }
 
 static struct klp_func funcs[] = {
-	{
-		.old_name = "dummy_check",
-		.new_func = livepatch_fix2_dummy_check,
-	},
-	{
-		.old_name = "dummy_free",
-		.new_func = livepatch_fix2_dummy_free,
-	}, { }
+	KLP_FUNC(dummy_check,
+		 livepatch_fix2_dummy_check),
+	KLP_FUNC(dummy_free,
+		 livepatch_fix2_dummy_free),
+	KLP_FUNC_END
 };
 
 static struct klp_object objs[] = {
-	{
-		.name = "livepatch_shadow_mod",
-		.funcs = funcs,
-	}, { }
+	KLP_OBJECT(livepatch_shadow_mod,
+		   funcs),
+	KLP_OBJECT_END
 };
 
 static struct klp_patch patch = {
@@ -129,25 +125,13 @@ static struct klp_patch patch = {
 
 static int livepatch_shadow_fix2_init(void)
 {
-	int ret;
-
-	ret = klp_register_patch(&patch);
-	if (ret)
-		return ret;
-	ret = klp_enable_patch(&patch);
-	if (ret) {
-		WARN_ON(klp_unregister_patch(&patch));
-		return ret;
-	}
-	return 0;
+	return klp_enable_patch(&patch);
 }
 
 static void livepatch_shadow_fix2_exit(void)
 {
 	/* Cleanup any existing SV_COUNTER shadow variables */
 	klp_shadow_free_all(SV_COUNTER, NULL);
-
-	WARN_ON(klp_unregister_patch(&patch));
 }
 
 module_init(livepatch_shadow_fix2_init);
