@@ -143,9 +143,9 @@ without HAVE_RELIABLE_STACKTRACE are not considered fully supported by
 the kernel livepatching.
 
 The /sys/kernel/livepatch/<patch>/transition file shows whether a patch
-is in transition.  Only a single patch (the topmost patch on the stack)
-can be in transition at a given time.  A patch can remain in transition
-indefinitely, if any of the tasks are stuck in the initial patch state.
+is in transition.  Only a single patch can be in transition at a given
+time.  A patch can remain in transition indefinitely, if any of the tasks
+are stuck in the initial patch state.
 
 A transition can be reversed and effectively canceled by writing the
 opposite value to the /sys/kernel/livepatch/<patch>/enabled file while
@@ -329,9 +329,10 @@ The livepatch gets enabled by calling klp_enable_patch() typically from
 module_init() callback. The system will start using the new implementation
 of the patched functions at this stage.
 
-First, the addresses of the patched functions are found according to their
-names. The special relocations, mentioned in the section "New functions",
-are applied. The relevant entries are created under
+First, possible conflicts are checked for non-cummulative patches with
+disabled replace flag. The addresses of the patched functions are found
+according to their names. The special relocations, mentioned in the section
+"New functions", are applied. The relevant entries are created under
 /sys/kernel/livepatch/<name>. The patch is rejected when any above
 operation fails.
 
@@ -345,11 +346,11 @@ this process, see the "Consistency model" section.
 Finally, once all tasks have been patched, the 'transition' value changes
 to '0'.
 
-[*] Note that functions might be patched multiple times. The ftrace handler
-    is registered only once for a given function. Further patches just add
-    an entry to the list (see field `func_stack`) of the struct klp_ops.
-    The right implementation is selected by the ftrace handler, see
-    the "Consistency model" section.
+[*] Note that two patches might modify the same function during the transition
+    to a new cumulative patch. The ftrace handler is registered only once
+    for a given function. The new patch just adds an entry to the list
+    (see field `func_stack`) of the struct klp_ops. The right implementation
+    is selected by the ftrace handler, see the "Consistency model" section.
 
 
 5.3. Replacing
@@ -389,8 +390,11 @@ becomes empty.
 
 Third, the sysfs interface is destroyed.
 
-Note that patches must be disabled in exactly the reverse order in which
-they were enabled. It makes the problem and the implementation much easier.
+Note that any patch dependencies have to be handled by the atomic replace
+and cumulative patches, see Documentation/livepatch/cumulative-patches.txt.
+Therefore there is usually only one patch enabled on the system. There is
+still possibility to have more trivial and independent livepatches enabled
+at the same time. These can be disabled in any order.
 
 
 5.5. Removing
