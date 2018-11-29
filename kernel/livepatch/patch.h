@@ -25,7 +25,7 @@ struct klp_ops {
 	struct ftrace_ops fops;
 };
 
-struct klp_ops *klp_find_ops(unsigned long old_addr);
+struct klp_ops *klp_find_ops(void *old_func);
 
 int klp_patch_object(struct klp_object *obj);
 void klp_unpatch_object(struct klp_object *obj);
