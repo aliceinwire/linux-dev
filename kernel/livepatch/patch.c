@@ -246,15 +246,26 @@ err:
 	return ret;
 }
 
-void klp_unpatch_object(struct klp_object *obj)
+static void __klp_unpatch_object(struct klp_object *obj, bool unpatch_all)
 {
 	struct klp_func *func;
 
-	klp_for_each_func(obj, func)
+	klp_for_each_func(obj, func) {
+		if (!unpatch_all && !func->nop)
+			continue;
+
 		if (func->patched)
 			klp_unpatch_func(func);
+	}
 
-	obj->patched = false;
+	if (unpatch_all || obj->dynamic)
+		obj->patched = false;
+}
+
+
+void klp_unpatch_object(struct klp_object *obj)
+{
+	__klp_unpatch_object(obj, true);
 }
 
 int klp_patch_object(struct klp_object *obj)
@@ -277,11 +288,21 @@ int klp_patch_object(struct klp_object *obj)
 	return 0;
 }
 
-void klp_unpatch_objects(struct klp_patch *patch)
+static void __klp_unpatch_objects(struct klp_patch *patch, bool unpatch_all)
 {
 	struct klp_object *obj;
 
 	klp_for_each_object(patch, obj)
 		if (obj->patched)
-			klp_unpatch_object(obj);
+			__klp_unpatch_object(obj, unpatch_all);
+}
+
+void klp_unpatch_objects(struct klp_patch *patch)
+{
+	__klp_unpatch_objects(patch, true);
+}
+
+void klp_unpatch_objects_dynamic(struct klp_patch *patch)
+{
+	__klp_unpatch_objects(patch, false);
 }
