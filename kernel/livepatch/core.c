@@ -662,20 +662,25 @@ static int klp_init_patch_before_free(struct klp_patch *patch)
 		return -EINVAL;
 
 	INIT_LIST_HEAD(&patch->list);
+	INIT_LIST_HEAD(&patch->obj_list);
 	patch->kobj_alive = false;
 	patch->enabled = false;
 	patch->forced = false;
 	INIT_WORK(&patch->free_work, klp_free_patch_work_fn);
 	init_completion(&patch->finish);
 
-	klp_for_each_object(patch, obj) {
+	klp_for_each_object_static(patch, obj) {
 		if (!obj->funcs)
 			return -EINVAL;
 
+		INIT_LIST_HEAD(&obj->func_list);
 		obj->kobj_alive = false;
+		list_add_tail(&obj->node, &patch->obj_list);
 
-		klp_for_each_func(obj, func)
+		klp_for_each_func_static(obj, func) {
 			func->kobj_alive = false;
+			list_add_tail(&func->node, &obj->func_list);
+		}
 	}
 
 	if (!try_module_get(patch->mod))
