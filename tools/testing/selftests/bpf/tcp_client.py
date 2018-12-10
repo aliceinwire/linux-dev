@@ -3,10 +3,9 @@
 # SPDX-License-Identifier: GPL-2.0
 #
 
-import sys, os, os.path, getopt
-import socket, time
-import subprocess
-import select
+import socket
+import sys
+
 
 def read(sock, n):
     buf = b''
