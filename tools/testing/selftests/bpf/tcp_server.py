@@ -24,7 +24,7 @@ def send(sock, s):
         try: n = sock.send(s)
         except (socket.error) as e: n = 0
         if n == 0:
-            return count;
+            return count
         count += n
     return count
 
@@ -72,7 +72,7 @@ while True:
                 address = str(address[0])
                 readList.append(clientSocket)
             else:
-                sock.settimeout(1);
+                sock.settimeout(1)
                 s = read(sock, 1000)
                 n = send(sock, buf)
                 sock.close()

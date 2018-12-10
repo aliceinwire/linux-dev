@@ -24,7 +24,7 @@ def send(sock, s):
         try: n = sock.send(s)
         except (socket.error) as e: n = 0
         if n == 0:
-            return count;
+            return count
         count += n
     return count
 
@@ -45,7 +45,7 @@ while n < 1000:
     buf += b'+'
     n += 1
 
-sock.settimeout(1);
+sock.settimeout(1)
 n = send(sock, buf)
 n = read(sock, 500)
 sys.exit(0)
