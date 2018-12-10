@@ -13,17 +13,22 @@ def read(sock, n):
     buf = b''
     while len(buf) < n:
         rem = n - len(buf)
-        try: s = sock.recv(rem)
-        except (socket.error) as e: return b''
+        try:
+            s = sock.recv(rem)
+        except (socket.error) as e:
+            return b''
         buf += s
     return buf
+
 
 def send(sock, s):
     total = len(s)
     count = 0
     while count < total:
-        try: n = sock.send(s)
-        except (socket.error) as e: n = 0
+        try:
+            n = sock.send(s)
+        except (socket.error) as e:
+            n = 0
         if n == 0:
             return count
         count += n
@@ -42,7 +47,8 @@ HostName = socket.gethostname()
 serverSocket = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)
 host = socket.gethostname()
 
-try: serverSocket.bind((host, 0))
+try:
+    serverSocket.bind((host, 0))
 except socket.error as msg:
     print('bind fails: ' + str(msg))
 
