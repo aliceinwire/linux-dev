@@ -623,8 +623,8 @@ def check_no_extack(res, needle):
 
 def check_verifier_log(output, reference):
     lines = output.split("\n")
-    for l in reversed(lines):
-        if l == reference:
+    for line in reversed(lines):
+        if line == reference:
             return
     fail(True, "Missing or incorrect message from netdevsim in verifier log")
 
