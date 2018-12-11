@@ -29,24 +29,29 @@ log_level = 1
 skip_extack = False
 bpf_test_dir = os.path.dirname(os.path.realpath(__file__))
 pp = pprint.PrettyPrinter()
-devs = [] # devices we created for clean up
-files = [] # files to be removed
-netns = [] # net namespaces to be removed
+devs = []  # devices we created for clean up
+files = []  # files to be removed
+netns = []  # net namespaces to be removed
+
 
 def log_get_sec(level=0):
     return "*" * (log_level + level)
+
 
 def log_level_inc(add=1):
     global log_level
     log_level += add
 
+
 def log_level_dec(sub=1):
     global log_level
     log_level -= sub
 
+
 def log_level_set(level):
     global log_level
     log_level = level
+
 
 def log(header, data, level=None):
     """
@@ -67,12 +72,14 @@ def log(header, data, level=None):
         logfile.write("\n")
     logfile.write(data)
 
+
 def skip(cond, msg):
     if not cond:
         return
     print("SKIP: " + msg)
     log("SKIP: " + msg, "", level=1)
     os.sys.exit(0)
+
 
 def fail(cond, msg):
     if not cond:
@@ -81,10 +88,12 @@ def fail(cond, msg):
     log("FAIL: " + msg, "", level=1)
     os.sys.exit(1)
 
+
 def start_test(msg):
     log(msg, "", level=1)
     log_level_inc()
     print(msg)
+
 
 def cmd(cmd, shell=True, include_stderr=False, background=False, fail=True):
     """
@@ -100,6 +109,7 @@ def cmd(cmd, shell=True, include_stderr=False, background=False, fail=True):
         return proc
 
     return cmd_result(proc, include_stderr=include_stderr, fail=fail)
+
 
 def cmd_result(proc, include_stderr=False, fail=False):
     stdout, stderr = proc.communicate()
@@ -128,10 +138,12 @@ def cmd_result(proc, include_stderr=False, fail=False):
     else:
         return proc.returncode, stdout
 
+
 def rm(f):
     cmd("rm -f %s" % (f))
     if f in files:
         files.remove(f)
+
 
 def tool(name, args, flags, JSON=True, ns="", fail=True, include_stderr=False):
     params = ""
@@ -158,9 +170,11 @@ def tool(name, args, flags, JSON=True, ns="", fail=True, include_stderr=False):
     else:
         return ret, out
 
+
 def bpftool(args, JSON=True, ns="", fail=True, include_stderr=False):
-    return tool("bpftool", args, {"json":"-p"}, JSON=JSON, ns=ns,
+    return tool("bpftool", args, {"json": "-p"}, JSON=JSON, ns=ns,
                 fail=fail, include_stderr=include_stderr)
+
 
 def bpftool_prog_list(expected=None, ns=""):
     _, progs = bpftool("prog show", JSON=True, ns=ns, fail=True)
@@ -174,6 +188,7 @@ def bpftool_prog_list(expected=None, ns=""):
                  (len(progs), expected))
     return progs
 
+
 def bpftool_map_list(expected=None, ns=""):
     _, maps = bpftool("map show", JSON=True, ns=ns, fail=True)
     # Remove the base maps
@@ -186,6 +201,7 @@ def bpftool_map_list(expected=None, ns=""):
                  (len(maps), expected))
     return maps
 
+
 def bpftool_prog_list_wait(expected=0, n_retry=20):
     for i in range(n_retry):
         nprogs = len(bpftool_prog_list())
@@ -194,6 +210,7 @@ def bpftool_prog_list_wait(expected=0, n_retry=20):
         time.sleep(0.05)
     raise Exception("Time out waiting for program counts to stabilize want %d, have %d" % (expected, nprogs))
 
+
 def bpftool_map_list_wait(expected=0, n_retry=20):
     for i in range(n_retry):
         nmaps = len(bpftool_map_list())
@@ -201,6 +218,7 @@ def bpftool_map_list_wait(expected=0, n_retry=20):
             return
         time.sleep(0.05)
     raise Exception("Time out waiting for map counts to stabilize want %d, have %d" % (expected, nmaps))
+
 
 def bpftool_prog_load(sample, file_name, maps=[], prog_type="xdp", dev=None,
                       fail=True, include_stderr=False):
@@ -217,27 +235,34 @@ def bpftool_prog_load(sample, file_name, maps=[], prog_type="xdp", dev=None,
         files.append(file_name)
     return res
 
+
 def ip(args, force=False, JSON=True, ns="", fail=True, include_stderr=False):
     if force:
         args = "-force " + args
-    return tool("ip", args, {"json":"-j"}, JSON=JSON, ns=ns,
+    return tool("ip", args, {"json": "-j"}, JSON=JSON, ns=ns,
                 fail=fail, include_stderr=include_stderr)
 
+
 def tc(args, JSON=True, ns="", fail=True, include_stderr=False):
-    return tool("tc", args, {"json":"-p"}, JSON=JSON, ns=ns,
+    return tool("tc", args, {"json": "-p"}, JSON=JSON, ns=ns,
                 fail=fail, include_stderr=include_stderr)
+
 
 def ethtool(dev, opt, args, fail=True):
     return cmd("ethtool %s %s %s" % (opt, dev["ifname"], args), fail=fail)
 
-def bpf_obj(name, sec=".text", path=bpf_test_dir,):
+
+def bpf_obj(name, sec=".text", path=bpf_test_dir, ):
     return "obj %s sec %s" % (os.path.join(path, name), sec)
+
 
 def bpf_pinned(name):
     return "pinned %s" % (name)
 
+
 def bpf_bytecode(bytecode):
     return "bytecode \"%s\"" % (bytecode)
+
 
 def mknetns(n_retry=10):
     for i in range(n_retry):
@@ -248,11 +273,13 @@ def mknetns(n_retry=10):
             return name
     return None
 
+
 def int2str(fmt, val):
     ret = []
     for b in struct.pack(fmt, val):
         ret.append(int(b))
     return " ".join(map(lambda x: str(x), ret))
+
 
 def str2int(strtab):
     inttab = []
@@ -267,6 +294,7 @@ def str2int(strtab):
         raise Exception("String array of len %d can't be unpacked to an int" %
                         (len(strtab)))
     return struct.unpack(fmt, ba)[0]
+
 
 class DebugfsDir:
     """
@@ -318,6 +346,7 @@ class DebugfsDir:
 
         return dfs
 
+
 class NetdevSim:
     """
     Class for netdevsim netdevice and its attributes.
@@ -340,9 +369,9 @@ class NetdevSim:
 
     def _netdevsim_create(self):
         link = "" if self.link is None else "link " + self.link.dev['ifname']
-        _, old  = ip("link show")
+        _, old = ip("link show")
         ip("link add sim%d {link} type netdevsim".format(link=link))
-        _, new  = ip("link show")
+        _, new = ip("link show")
 
         for dev in new:
             f = filter(lambda x: x["ifname"] == dev["ifname"], old)
@@ -384,7 +413,8 @@ class NetdevSim:
             if nbound == bound and nprogs == total:
                 return
             time.sleep(0.05)
-        raise Exception("Time out waiting for program counts to stabilize want %d/%d, have %d bound, %d loaded" % (bound, total, nbound, nprogs))
+        raise Exception("Time out waiting for program counts to stabilize want %d/%d, have %d bound, %d loaded" % (
+            bound, total, nbound, nprogs))
 
     def set_ns(self, ns):
         name = "1" if ns == "" else ns
@@ -473,7 +503,7 @@ class NetdevSim:
         if chain is not None:
             spec += " chain %d" % (chain)
 
-        return tc("filter {op} dev {dev} {qdisc} {spec} {cls} {params}"\
+        return tc("filter {op} dev {dev} {qdisc} {spec} {cls} {params}"
                   .format(op=op, dev=self['ifname'], qdisc=qdisc, spec=spec,
                           cls=cls, params=params),
                   fail=fail, include_stderr=include_stderr)
@@ -502,6 +532,7 @@ class NetdevSim:
         args = "hw-tc-offload %s" % ("on" if enable else "off")
         return ethtool(self, "-K", args, fail=fail)
 
+
 ################################################################################
 def clean_up():
     global files, netns, devs
@@ -515,6 +546,7 @@ def clean_up():
     files = []
     netns = []
 
+
 def pin_prog(file_name, idx=0):
     progs = bpftool_prog_list(expected=(idx + 1))
     prog = progs[idx]
@@ -523,6 +555,7 @@ def pin_prog(file_name, idx=0):
 
     return file_name, bpf_pinned(file_name)
 
+
 def pin_map(file_name, idx=0, expected=1):
     maps = bpftool_map_list(expected=expected)
     m = maps[idx]
@@ -530,6 +563,7 @@ def pin_map(file_name, idx=0, expected=1):
     files.append(file_name)
 
     return file_name, bpf_pinned(file_name)
+
 
 def check_dev_info_removed(prog_file=None, map_file=None):
     bpftool_prog_list(expected=0)
@@ -545,6 +579,7 @@ def check_dev_info_removed(prog_file=None, map_file=None):
     fail(err["error"].find("No such device") == -1,
          "Showing map with removed device expected ENODEV, error is %s" %
          (err["error"]))
+
 
 def check_dev_info(other_ns, ns, prog_file=None, map_file=None, removed=False):
     progs = bpftool_prog_list(expected=1, ns=ns)
@@ -568,6 +603,7 @@ def check_dev_info(other_ns, ns, prog_file=None, map_file=None, removed=False):
         fail("dev" not in m.keys(), "Device parameters not reported")
         fail(dev != m["dev"], "Map's device different than program's")
 
+
 def check_extack(output, reference, args):
     if skip_extack:
         return
@@ -575,12 +611,15 @@ def check_extack(output, reference, args):
     comp = len(lines) >= 2 and lines[1] == 'Error: ' + reference
     fail(not comp, "Missing or incorrect netlink extack message")
 
+
 def check_extack_nsim(output, reference, args):
     check_extack(output, "netdevsim: " + reference, args)
+
 
 def check_no_extack(res, needle):
     fail((res[1] + res[2]).count(needle) or (res[1] + res[2]).count("Warning:"),
          "Found '%s' in command output, leaky extack?" % (needle))
+
 
 def check_verifier_log(output, reference):
     lines = output.split("\n")
@@ -588,6 +627,7 @@ def check_verifier_log(output, reference):
         if l == reference:
             return
     fail(True, "Missing or incorrect message from netdevsim in verifier log")
+
 
 def test_spurios_extack(sim, obj, skip_hw, needle):
     res = sim.cls_bpf_add_filter(obj, prio=1, handle=1, skip_hw=skip_hw,
@@ -1056,7 +1096,7 @@ try:
     sim = NetdevSim()
     map_obj = bpf_obj("sample_map_ret0.o")
     start_test("Test loading program with maps...")
-    sim.set_xdp(map_obj, "offload", JSON=False) # map fixup msg breaks JSON
+    sim.set_xdp(map_obj, "offload", JSON=False)  # map fixup msg breaks JSON
 
     start_test("Test bpftool bound info reporting (own ns)...")
     check_dev_info(False, "")
@@ -1087,7 +1127,7 @@ try:
     sim = NetdevSim()
 
     start_test("Test map update (no flags)...")
-    sim.set_xdp(map_obj, "offload", JSON=False) # map fixup msg breaks JSON
+    sim.set_xdp(map_obj, "offload", JSON=False)  # map fixup msg breaks JSON
     maps = bpftool_map_list(expected=2)
     array = maps[0] if maps[0]["type"] == "array" else maps[1]
     htab = maps[0] if maps[0]["type"] == "hash" else maps[1]
@@ -1168,7 +1208,7 @@ try:
     sim.remove()
 
     sim = NetdevSim()
-    sim.set_xdp(map_obj, "offload", JSON=False) # map fixup msg breaks JSON
+    sim.set_xdp(map_obj, "offload", JSON=False)  # map fixup msg breaks JSON
     sim.remove()
     bpftool_map_list_wait(expected=0)
 
