@@ -140,7 +140,7 @@ def cmd_result(proc, include_stderr=False, fail=False):
 
 
 def rm(f):
-    cmd("rm -f %s" % (f))
+    cmd("rm -f %s" % (f,))
     if f in files:
         files.remove(f)
 
